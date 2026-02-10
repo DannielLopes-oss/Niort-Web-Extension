@@ -1,0 +1,98 @@
+/* Container principal - Canto inferior direito */
+#niort-widget-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2147483647; /* Máximo z-index possível para ficar acima de tudo */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* O Botão Redondo (Launcher) */
+#niort-launcher {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Roxo moderno */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 28px;
+    transition: transform 0.2s;
+    user-select: none;
+}
+
+#niort-launcher:hover {
+    transform: scale(1.1);
+}
+
+/* A Janela do Chat */
+#niort-chat-window {
+    width: 350px;
+    height: 500px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 40px rgba(0,0,0,0.16);
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    display: none; /* Oculto inicialmente */
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+/* Cabeçalho do Chat */
+.niort-header {
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Área de mensagens */
+#niort-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #f9fafb;
+    font-size: 14px;
+}
+
+/* Input de texto */
+.niort-input-area {
+    padding: 10px;
+    border-top: 1px solid #eee;
+    display: flex;
+    background: white;
+}
+
+#niort-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    margin-right: 8px;
+}
+
+#niort-send {
+    background: #764ba2;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Estados de Opacidade */
+.niort-visible { opacity: 1; }
+.niort-dimmed { opacity: 0.3; } /* Quando o mouse não está em cima */
+.niort-hidden { opacity: 0.05; } /* Quase invisível (modo vídeo) */

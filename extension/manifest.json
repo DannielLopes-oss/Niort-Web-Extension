@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Niort Bot",
+  "version": "1.0",
+  "description": "Seu assistente virtual inteligente com agente de IA.",
+  "permissions": [
+    "activeTab",
+    "history",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "action": {
+    "default_title": "Abrir Niort Bot"
+  }
+}
