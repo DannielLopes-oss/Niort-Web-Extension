@@ -96,3 +96,31 @@
 .niort-visible { opacity: 1; }
 .niort-dimmed { opacity: 0.3; } /* Quando o mouse não está em cima */
 .niort-hidden { opacity: 0.05; } /* Quase invisível (modo vídeo) */
+
+/* Balãozinho de Notificação Sutil */
+#niort-notification {
+    position: absolute;
+    bottom: 75px; /* Fica exatamente em cima do robô */
+    right: 0;
+    background: #ffffff;
+    color: #4b5563; /* Cinza escuro elegante */
+    padding: 12px 16px;
+    border-radius: 15px 15px 0 15px; /* Formato de balão de fala apontando pro bot */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    font-size: 13px;
+    font-weight: 500;
+    max-width: 220px;
+    border: 1px solid #e5e7eb;
+    opacity: 0; /* Começa invisível */
+    transform: translateY(10px); /* Começa um pouco para baixo */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Animação super fluida */
+    pointer-events: none; /* O clique do mouse atravessa ele, não atrapalha o usuário */
+    z-index: -1;
+}
+
+/* Classe que o JS vai usar para exibir o balão */
+#niort-notification.niort-show {
+    opacity: 1;
+    transform: translateY(0);
+    z-index: 10;
+}

@@ -1,5 +1,3 @@
-// content.js
-
 // 1. Cria o HTML do Widget
 const container = document.createElement('div');
 container.id = 'niort-widget-container';
@@ -25,10 +23,16 @@ chatWindow.innerHTML = `
 
 const launcherBtn = document.createElement('div');
 launcherBtn.id = 'niort-launcher';
-launcherBtn.innerHTML = '🤖'; 
+launcherBtn.innerHTML = '🤡'; 
+
+// ADICIONE ESTAS TRÊS LINHAS AQUI:
+const notificationBubble = document.createElement('div');
+notificationBubble.id = 'niort-notification';
+notificationBubble.innerText = 'Nova recomendação!';
 
 container.appendChild(chatWindow);
 container.appendChild(launcherBtn);
+container.appendChild(notificationBubble);
 document.body.appendChild(container);
 
 // Lógica do Botão de Sincronizar
@@ -39,7 +43,7 @@ document.getElementById('niort-sync-btn').addEventListener('click', () => {
         msgDiv.innerHTML += `
             <div style="margin-bottom: 10px; display: flex; justify-content: flex-start;">
                 <div style="background: #d1fae5; color: #065f46; padding: 8px 12px; border-radius: 15px 15px 15px 0; max-width: 80%;">
-                    🔄 Iniciando leitura do histórico... Verifique o terminal do Python!
+                    🔄 Iniciando leitura do histórico... 
                 </div>
             </div>
         `;
@@ -60,7 +64,6 @@ launcherBtn.addEventListener('click', () => {
     }
 });
 
-// 3. Enviar Mensagem para o Backend
 async function sendMessage() {
     const input = document.getElementById('niort-input');
     const text = input.value.trim();
@@ -68,7 +71,7 @@ async function sendMessage() {
 
     const msgDiv = document.getElementById('niort-messages');
     
-    // Adiciona msg do usuário
+    // Adiciona msg do usuário na tela
     msgDiv.innerHTML += `
         <div style="margin-bottom: 10px; display: flex; justify-content: flex-end;">
             <div style="background: #764ba2; color: white; padding: 8px 12px; border-radius: 15px 15px 0 15px; max-width: 80%;">
@@ -77,36 +80,42 @@ async function sendMessage() {
         </div>
     `;
     input.value = '';
+    
+    // Adiciona indicador de digitando...
+    const loadingId = "loading-" + Date.now();
+    msgDiv.innerHTML += `
+        <div id="${loadingId}" style="margin-bottom: 10px; display: flex; justify-content: flex-start;">
+            <div style="background: #e0e7ff; color: #333; padding: 8px 12px; border-radius: 15px 15px 15px 0; max-width: 80%; font-style: italic;">
+                Pensando... 🤔
+            </div>
+        </div>
+    `;
     msgDiv.scrollTop = msgDiv.scrollHeight;
 
-    try {
-        const response = await fetch('http://127.0.0.1:8000/api/chat', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-                user_message: text, 
-                context_url: window.location.href 
-            })
-        });
-        
-        if (!response.ok) throw new Error('Erro na API');
+    // ENVIA A MENSAGEM PARA O BACKGROUND.JS AO INVÉS DE USAR FETCH DIRETO
+    chrome.runtime.sendMessage({ 
+        action: "CHAT_MESSAGE", 
+        payload: { user_message: text, context_url: window.location.href } 
+    }, (response) => {
+        // Remove o indicador de "digitando..."
+        document.getElementById(loadingId).remove();
 
-        const data = await response.json();
+        if (chrome.runtime.lastError || !response || !response.success) {
+            console.error("Erro na ponte:", chrome.runtime.lastError || response.error);
+            msgDiv.innerHTML += `<div style="color: red; font-size: 12px; text-align: center; margin-bottom: 10px;">Erro de conexão com o servidor. Verifique o terminal Python.</div>`;
+            return;
+        }
         
-        // Adiciona resposta do Bot
+        // Adiciona resposta do Bot com a IA
         msgDiv.innerHTML += `
             <div style="margin-bottom: 10px; display: flex; justify-content: flex-start;">
                 <div style="background: #e0e7ff; color: #333; padding: 8px 12px; border-radius: 15px 15px 15px 0; max-width: 80%;">
-                    ${data.reply}
+                    ${response.data.reply}
                 </div>
             </div>
         `;
         msgDiv.scrollTop = msgDiv.scrollHeight;
-
-    } catch (error) {
-        console.error("Erro Niort Bot:", error);
-        msgDiv.innerHTML += `<div style="color: red; font-size: 12px; text-align: center;">Erro de conexão com o servidor.</div>`;
-    }
+    });
 }
 
 document.getElementById('niort-send').addEventListener('click', sendMessage);
@@ -153,6 +162,27 @@ function updateOpacity() {
         // Estado normal (inativo mas sem vídeo)
         container.className = 'niort-dimmed';
     }
+}
+
+// ESCUTADOR DE NOTIFICAÇÕES (Adicione no final do arquivo)
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "SHOW_RECOMMENDATION") {
+        // A Regra de Ouro: NUNCA mostre notificação se o usuário estiver vendo vídeo
+        if (!isVideoPlaying && !chatOpen) {
+            showNotification(request.text);
+        }
+    }
+});
+
+function showNotification(text) {
+    const bubble = document.getElementById('niort-notification');
+    bubble.innerText = text;
+    bubble.classList.add('niort-show'); // Mostra o balão
+
+    // Esconde suavemente depois de 8 segundos
+    setTimeout(() => {
+        bubble.classList.remove('niort-show');
+    }, 8000);
 }
 
 container.addEventListener('mouseenter', updateOpacity);

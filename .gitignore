@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Banco de Dados Local
+backend/niort_db/
+
+# Extensão (Builds e Chaves)
+*.crx
+*.pem
+.DS_Store
+
+# Logs
+*.log
